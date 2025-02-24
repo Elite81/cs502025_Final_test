@@ -49,6 +49,20 @@ class Subjects(Base):
    def __repr__(self) -> str:
       return f"Subject(id={self.id!r}), name={self.name!r}"
 
+#Stages_available per questions
+class Stages(Base):
+   __tablename__= 'stages'
+   id: Mapped[int] = mapped_column(primary_key=True)
+   questions_id: Mapped[List["Questions"]] = relationship("Questions", secondary="question_stage", back_populates="stages")
+   created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda:datetime.now(timezone.utc))
+
+#Bridge Table (Question -Stages)
+class QuestionsStages(Base):
+   __tablename__="questions_stages"
+   id: Mapped[int] = mapped_column(primary_key=True)
+   questions_id:Mapped[int] = mapped_column(ForeignKey("questions.id"))
+   stage_id: Mapped[int] = mapped_column(ForeignKey("stages.id"))
+
 
 # Just create a quiz
 class Quizzes(Base):
@@ -70,6 +84,7 @@ class Questions(Base):
    id: Mapped[int] = mapped_column(primary_key=True)
    subject_id: Mapped[int] = mapped_column(ForeignKey("subjects.id"), index=True)
    # quiz_id: Mapped[int] = mapped_column(ForeignKey("quizzes.id"))
+   stages: Mapped[List["Stages"]] = relationship("Stages", secondary="quesition_stages", back_populates="questions")
    question_text: Mapped[str] = mapped_column(String(512), unique=True)
    options: Mapped[List["Options"]] = relationship("Options", back_populates="question")
    answer_text: Mapped[str] = mapped_column(String(256))
