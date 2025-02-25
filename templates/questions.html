@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title%}questions{%endblock%}
+
+{% block content %}
+    <div class="container-lg">
+        <div class="col">
+            <h1 class="fs-1 text-primary justify-content-center align-item-center">Register New Subject</h1>
+            <form action="" class="ask_question">
+                <label for="">number of questions</label>
+                <input type="number" min="1" max="100" name="" id="">
+                <br>
+                <label for="">Number of options per question</label>
+                <input type="number" name="" min="1" max="5"id="">
+                <br>
+                <input type="submit" name="" id="">
+            </form>
+            <div class="question"></div>
+        </div>
+    </div>
+{% endblock %}

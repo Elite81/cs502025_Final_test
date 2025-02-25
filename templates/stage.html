@@ -1,0 +1,26 @@
+{% extends "base.html"%}
+
+{% block title%} Add Subject{%endblock%}
+
+
+{% block content %}
+    <section>
+      <div class="container-lg">
+        <div class="row">
+          <div class="">
+            <p class="fs-1">Add a Stage</p>
+            <form action="{{url_for("stages")}}" method='POST'>
+                <div class="mb-3">
+                    <p class="text-danger fs-6">{% if message %}{{message}}{%endif%}</p>
+                        <label for="exampleInputPassword1" class="form-label">Stage</label>
+                        <input type="text" name="stage" class="form-control" id="exampleInputPassword1">
+                    </div>
+                    <button type="submit" class="btn btn-primary my-3">Submit</button>
+            </form>
+
+          </div>
+        </div>
+      </div>
+    </section>
+{% endblock %}
+

@@ -29,7 +29,7 @@ class Base(DeclarativeBase):
 class User(Base):
     __tablename__ = "users"
     id: Mapped[int] = mapped_column(primary_key=True)
-    username: Mapped[str] = mapped_column(String(64), unique=True)
+    username: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
     first_name: Mapped[Optional[str]] = mapped_column(String(64))
     last_name: Mapped[Optional[str]] = mapped_column(String(64))
     gender: Mapped[Gender] = mapped_column(SQLAlchemyEnum(Gender), nullable=False)
@@ -47,6 +47,12 @@ class User(Base):
     #Preventing reading the password directly
     def password(self):
         raise AttributeError("Password is not readable")
+    
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if self.username:
+            self.username = self.username.lower()
 
     @password.setter
     #Hash the password before storing it.
@@ -78,6 +84,7 @@ class Subjects(Base):
 class Stages(Base):
     __tablename__ = "stages"
     id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(16), unique=True)
     questions_id: Mapped[List["Questions"]] = relationship(
         "Questions", secondary="question_stages", back_populates="stages"
     )
