@@ -20,15 +20,11 @@ db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 migrate = Migrate(app, db)
 
-
-
-
-
-
-@app.route("/")
-def home():
+@app.context_processor
+def inject_variables():
     subjects = []
     stages =[]
+    
     all_current_subjects = db.session.execute(db.select(Subjects)).scalars().all()
     for subject in all_current_subjects:
         subjects.append(subject.name)
@@ -36,8 +32,17 @@ def home():
     all_current_stages = db.session.execute(db.select(Stages)).scalars().all()
     for stage in all_current_stages:
         stages.append(stage.name)
+    return dict(subjects=subjects, stages=stages)
+
+
+
+
+
+@app.route("/")
+def home():
     
-    return render_template("base.html", subjects=subjects, stages=stages)
+    
+    return render_template("base.html")
 
 
 @app.route("/login", methods=["GET", "POST"])

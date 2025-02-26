@@ -5,16 +5,23 @@
     <div class="container-lg">
         <div class="col">
             <h1 class="fs-1 text-primary justify-content-center align-item-center">Register New Subject</h1>
-            <form action="" class="ask_question">
-                <label for="">number of questions</label>
-                <input type="number" min="1" max="100" name="" id="">
+            <form action="" class="ask_question" method="POST">
+                <label for="">Number of questions</label>
+                <input type="number" min="1" max="100" name="numberOfquestion" id="" class="form-control numberOfquestion">
                 <br>
                 <label for="">Number of options per question</label>
-                <input type="number" name="" min="1" max="5"id="">
+                <input type="number" name="numOfoption" min="1" max="5" id="" class="form-control numOfoption">
                 <br>
-                <input type="submit" name="" id="">
+                <input type="submit" name="" id="" class="my-btn btn-primary my-3">
             </form>
-            <div class="question"></div>
+            <div class="question_to_submit" >
+                <form action="" method="POST">
+                    <div class="question">
+
+                    </div>
+                    <input type="submit" class="bg-primary">
+                </form>
+            </div>
         </div>
     </div>
 {% endblock %}

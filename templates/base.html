@@ -101,15 +101,17 @@
 
 
  <section class="">
-  <div id="" class="bg-success text-light">
-        {% block footer %}
+    <div id="" class="bg-success text-light">
+          {% block footer %}
 
+          
+            <div class="">
+              <h1 class="fs-1">This is the Footer</h1>
+            </div>
         
-          <div class="">
-            <h1 class="fs-1">This is the Footer</h1>
-          </div>
-      
-        {% endblock %}
+          {% endblock %}
     </div>
+  <section/>
+    <script src="{{url_for('static', filename='index.js')}}"></script>
 </body>
 </html>
