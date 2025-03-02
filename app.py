@@ -1,11 +1,12 @@
-from flask import Flask, render_template, url_for, request
+from flask import Flask, render_template, url_for, request, jsonify, session
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy 
 from config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker
 from werkzeug.security import check_password_hash
 from models import * 
 from sqlalchemy import create_engine
+import secrets
 
 # Create a session
 # session = Session(bind=engine)
@@ -16,12 +17,15 @@ app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
+# app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.secret_key = secrets.token_hex(64)
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 migrate = Migrate(app, db)
 
 @app.context_processor
-def inject_variables():
+def subject_variables():
     subjects = []
     stages =[]
     
@@ -34,14 +38,21 @@ def inject_variables():
         stages.append(stage.name)
     return dict(subjects=subjects, stages=stages)
 
-
-
-
+@app.route("/userIdSubjetId", methods=["GET", "POST"])
+def stageIdSubjetId():
+    data = request.get_json()
+    stage = data['stage']
+    subject_name = data['subject']
+    stage = db.session.execute(db.select(Stages).filter_by(name=stage)).scalars().first()
+    subject = db.session.execute(db.select(Subjects).filter_by(name=subject_name)).scalars().first()
+    subjectId = subject.id
+    stageId = stage.id
+    print(subjectId)
+    print(stageId)
+    return jsonify({"stageId":stageId, "subjectId":subjectId})
 
 @app.route("/")
 def home():
-    
-    
     return render_template("base.html")
 
 
@@ -58,6 +69,7 @@ def login():
             print(user)
             try:
                 if user and check_password_hash(user._password, password):
+                    session["user_id"] = user.id
                     return render_template("base.html")
                 
             except AttributeError:
@@ -67,7 +79,6 @@ def login():
     
     else:
         return render_template("login.html")
-
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
@@ -87,8 +98,6 @@ def signup():
         db.session.commit()
         return url_for("login")
     
-
-
 @app.route("/questions", methods=["GET", "POST"])
 def questions():
 
@@ -136,6 +145,66 @@ def subjects():
             db.session.commit()
         return render_template("subject.html")
 
+@app.route("/new-question", methods=["POST"])
+def new_questions():
+    json_data = request.get_json()
+
+    print(json_data)
+
+    if not json_data:
+        return jsonify({"error": "Invalid JSON data"}), 400
+    
+    elif not session.get("user_id"):
+        return jsonify({"error": "User not authenticaed"})
+    
+    print(json_data["subjectId"])
+    print("Hello")
+    
+    try:
+        with db.session.begin():
+            question_list = []
+            option_list = []
+
+            for i in range(len(json_data["questions"])):
+
+                new_question = Questions(
+                    subject_id = int(json_data["subjectId"]),
+                    question_text = json_data["questions"][i],
+                    answer_text = json_data["answers"][i],
+                    answer_explained = json_data["answerExplain"][i],
+                    question_type=False,
+                    teacher_id = session.get("user_id")
+                )
+                print(new_questions)
+                
+                db.session.add(new_question)
+                question_list.append(new_question)
+            db.session.flush()  
+
+            for q_index, question in enumerate(question_list):
+                options = json_data["options"][q_index]
+                print(options)
+
+                if not isinstance(options, list):
+                    return jsonify({"error":f"option for quetion {q_index}are invalid" })
+
+                print(f"This is the Options: {options}")
+                
+                for option_text in options:
+                    print(f"Adding option for Q{q_index}: {option_text}")
+                    option_list.append(Options(question_id=question.id, question_options=option_text))
+
+            db.session.bulk_save_objects(option_list)
+        print("data saved with success")
+        return jsonify({"message": "data saved with success"}), 201
+
+# question=question,
+    except Exception as e:
+        db.session.rollback()
+        print(f"Erreor: {e}")
+        return jsonify({"error":str(e)}), 500
+
+    
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()

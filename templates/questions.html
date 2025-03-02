@@ -6,6 +6,12 @@
         <div class="col">
             <h1 class="fs-1 text-primary justify-content-center align-item-center">Register New Subject</h1>
             <form action="" class="ask_question" method="POST">
+                <label for="">Subject:</label>
+                <input type="text" name="subject" id="" class="form-control subject">
+                
+                <label for="">Stage:</label>
+                <input type="text" name="stage" id="" class="form-control stage">
+                
                 <label for="">Number of questions</label>
                 <input type="number" min="1" max="100" name="numberOfquestion" id="" class="form-control numberOfquestion">
                 <br>
@@ -14,9 +20,11 @@
                 <br>
                 <input type="submit" name="" id="" class="my-btn btn-primary my-3">
             </form>
+
+
             <div class="question_to_submit" >
-                <form action="" method="POST">
-                    <div class="question">
+                <form action="" method="POST" id="allQuestions">
+                    <div class="questionContainer">
 
                     </div>
                     <input type="submit" class="bg-primary">
